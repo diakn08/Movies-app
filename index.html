@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="homePage">
+        <div class="header">
+            <div class="status-bar"></div>
+            <h1>What do you want to watch?</h1>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+
+        <div class="hero-section">
+            <div class="hero-grid" id="heroGrid"></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="nowplaying">Now playing</button>
+            <button class="tab" data-tab="upcoming">Upcoming</button>
+            <button class="tab" data-tab="toprated">Top rated</button>
+            <button class="tab" data-tab="popular">Popular</button>
+        </div>
+
+        <div class="movies-container">
+            <div class="movies-grid" id="moviesGrid"></div>
+            <div class="loading" id="loading" style="display: none;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Detail Page -->
+    <div class="detail-page" id="detailPage">
+        <div class="detail-header">
+            <button class="back-button" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="page-title">Detail</h2>
+            <button class="bookmark-btn" id="bookmarkBtn"><i class="fas fa-bookmark"></i></button>
+        </div>
+        <div id="detailContent"></div>
+    </div>
+
+    <!-- Watch List Page -->
+    <div class="watchlist-page" id="watchlistPage">
+        <div class="detail-header">
+            <button class="back-button" id="watchlistBackBtn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="page-title">Watch list</h2>
+            <div style="width: 40px;"></div>
+        </div>
+        <div id="watchlistContent"></div>
+    </div>
+
+    <!-- Search Page -->
+    <div class="search-page" id="searchPage">
+        <div class="detail-header">
+            <button class="back-button" id="searchBackBtn"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="page-title">Search</h2>
+            <div style="width: 40px;"></div>
+        </div>
+        <div class="search-content">
+            <div class="search-history" id="searchHistory">
+                <h3 class="search-history-title">Recent Searches</h3>
+                <div class="search-history-items" id="searchHistoryItems"></div>
+            </div>
+            <div class="search-recommendations">
+                <h3 class="search-recommendations-title">Popular Movies</h3>
+                <div class="movies-grid" id="searchRecommendationsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-page="home">
+            <span class="nav-icon"><i class="fas fa-home"></i></span>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" data-page="search">
+            <span class="nav-icon"><i class="fas fa-search"></i></span>
+            <span>Search</span>
+        </button>
+        <button class="nav-item" data-page="watchlist">
+            <span class="nav-icon"><i class="fas fa-bookmark"></i></span>
+            <span>Watch list</span>
+        </button>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
