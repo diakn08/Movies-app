@@ -3,13 +3,11 @@ const API_BASE = 'https://api.themoviedb.org/3';
 const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 const IMG_ORIGINAL = 'https://image.tmdb.org/t/p/original';
 
-// State
 let currentTab = 'nowplaying';
-let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
-let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+let watchlist = [];
+let searchHistory = [];
 let currentMovie = null;
 
-// Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     console.log('App initialized');
     loadHeroMovies();
@@ -17,14 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
-// Setup Event Listeners
 function setupEventListeners() {
-    // Tab Navigation
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', handleTabClick);
     });
 
-    // Search Input
     let searchTimeout;
     document.getElementById('searchInput').addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -35,7 +30,6 @@ function setupEventListeners() {
                 console.log('Searching for:', query);
                 searchMovies(query);
             } else {
-                // Если поиск пустой, показываем hero и загружаем фильмы
                 document.querySelector('.hero-section').style.display = 'block';
                 loadHeroMovies();
                 loadMovies('now_playing');
@@ -43,12 +37,10 @@ function setupEventListeners() {
         }, 500);
     });
 
-    // Bottom Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', handleNavClick);
     });
 
-    // Back Buttons
     document.getElementById('backBtn').addEventListener('click', () => {
         document.getElementById('detailPage').classList.remove('active');
     });
@@ -63,11 +55,9 @@ function setupEventListeners() {
         document.querySelector('[data-page="home"]').click();
     });
 
-    // Bookmark Button
     document.getElementById('bookmarkBtn').addEventListener('click', toggleBookmark);
 }
 
-// Tab Click Handler
 function handleTabClick(e) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     e.target.classList.add('active');
@@ -85,7 +75,6 @@ function handleTabClick(e) {
     loadMovies(endpoints[tabName]);
 }
 
-// Navigation Click Handler
 function handleNavClick(e) {
     const page = e.currentTarget.dataset.page;
     
@@ -111,7 +100,6 @@ function handleNavClick(e) {
     }
 }
 
-// Load Hero Movies (показываем горизонтальную прокрутку)
 async function loadHeroMovies() {
     try {
         const response = await fetch(`${API_BASE}/movie/popular?${API_KEY}&language=en-US&page=1`);
@@ -139,11 +127,10 @@ async function loadHeroMovies() {
         console.log('Hero movies loaded:', data.results.length);
     } catch (error) {
         console.error('Error loading hero movies:', error);
-        document.getElementById('heroGrid').innerHTML = '<p style="color: red; padding: 20px;">Failed to load movies. Check console.</p>';
+        document.getElementById('heroGrid').innerHTML = '<p style="color: red; padding: 20px;">Failed to load movies.</p>';
     }
 }
 
-// Load Movies by Category
 async function loadMovies(endpoint) {
     const loading = document.getElementById('loading');
     const grid = document.getElementById('moviesGrid');
@@ -179,18 +166,16 @@ async function loadMovies(endpoint) {
         console.log(`Loaded ${data.results.length} movies for ${endpoint}`);
     } catch (error) {
         console.error('Error loading movies:', error);
-        grid.innerHTML = '<p class="error">Failed to load movies. Please check your internet connection.</p>';
+        grid.innerHTML = '<p class="error">Failed to load movies.</p>';
     } finally {
         loading.style.display = 'none';
     }
 }
 
-// Search Movies
 async function searchMovies(query) {
     const loading = document.getElementById('loading');
     const grid = document.getElementById('moviesGrid');
     
-    // Скрываем hero-секцию при поиске
     document.querySelector('.hero-section').style.display = 'none';
     
     loading.style.display = 'block';
@@ -205,7 +190,6 @@ async function searchMovies(query) {
         
         const data = await response.json();
         
-        // Сохраняем поиск в историю
         addToSearchHistory(query);
         
         if (!data.results || data.results.length === 0) {
@@ -229,16 +213,15 @@ async function searchMovies(query) {
             `;
         }).join('');
         
-        console.log(`Found ${data.results.length} movies for query: ${query}`);
+        console.log(`Found ${data.results.length} movies`);
     } catch (error) {
         console.error('Error searching movies:', error);
-        grid.innerHTML = '<p class="error">Search failed. Please try again.</p>';
+        grid.innerHTML = '<p class="error">Search failed.</p>';
     } finally {
         loading.style.display = 'none';
     }
 }
 
-// Show Movie Detail
 async function showDetail(movieId) {
     console.log('Loading details for movie:', movieId);
     
@@ -258,11 +241,9 @@ async function showDetail(movieId) {
         
         currentMovie = movie;
         
-        // Check if movie is bookmarked
         const isBookmarked = watchlist.some(m => m.id === movie.id);
         document.getElementById('bookmarkBtn').classList.toggle('active', isBookmarked);
         
-        // Render detail page
         document.getElementById('detailContent').innerHTML = `
             <div class="detail-hero">
                 <img src="${movie.backdrop_path ? IMG_ORIGINAL + movie.backdrop_path : IMG_BASE + movie.poster_path}" 
@@ -290,7 +271,7 @@ async function showDetail(movieId) {
                         <span>${movie.runtime || 'N/A'} Minutes</span>
                     </div>
                     <div class="meta-item">
-                        <i class="fas fa-tags"></i>
+                        <i class="fas fa-ticket-alt"></i>
                         <span>${movie.genres && movie.genres.length > 0 ? movie.genres[0].name : 'Action'}</span>
                     </div>
                 </div>
@@ -301,39 +282,34 @@ async function showDetail(movieId) {
                 </div>
                 <div id="tabContent">
                     <div class="detail-description">
-                        ${movie.overview || 'From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences.'}
+                        ${movie.overview || 'No description available.'}
                     </div>
                 </div>
             </div>
         `;
         
-        // Show detail page
         document.getElementById('detailPage').classList.add('active');
         
         console.log('Movie details loaded:', movie.title);
     } catch (error) {
         console.error('Error loading movie details:', error);
-        alert('Failed to load movie details. Please try again.');
+        alert('Failed to load movie details.');
     }
 }
 
-// Show About Tab
 function showAbout() {
     if (!currentMovie) return;
     
     document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.detail-tab')[0].classList.add('active');
     
-    const director = currentMovie.credits?.crew?.find(person => person.job === 'Director');
-    
     document.getElementById('tabContent').innerHTML = `
         <div class="detail-description">
-            ${currentMovie.overview || 'From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences.'}
+            ${currentMovie.overview || 'No description available.'}
         </div>
     `;
 }
 
-// Show Reviews Tab
 function showReviews() {
     if (!currentMovie) return;
     
@@ -347,7 +323,6 @@ function showReviews() {
     `;
 }
 
-// Show Cast Tab
 function showCast() {
     if (!currentMovie) return;
     
@@ -379,7 +354,6 @@ function showCast() {
     `;
 }
 
-// Toggle Bookmark
 function toggleBookmark() {
     if (!currentMovie) return;
     
@@ -387,22 +361,16 @@ function toggleBookmark() {
     const btn = document.getElementById('bookmarkBtn');
     
     if (index > -1) {
-        // Remove from watchlist
         watchlist.splice(index, 1);
         btn.classList.remove('active');
         console.log('Removed from watchlist:', currentMovie.title);
     } else {
-        // Add to watchlist
         watchlist.push(currentMovie);
         btn.classList.add('active');
         console.log('Added to watchlist:', currentMovie.title);
     }
-    
-    // Save to localStorage
-    localStorage.setItem('watchlist', JSON.stringify(watchlist));
 }
 
-// Load Watchlist
 function loadWatchlist() {
     const content = document.getElementById('watchlistContent');
     
@@ -434,7 +402,7 @@ function loadWatchlist() {
                                 <span>${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
                             </div>
                             <div class="watchlist-meta-item">
-                                <i class="fas fa-tags"></i>
+                                <i class="fas fa-ticket-alt"></i>
                                 <span>${movie.genres && movie.genres[0] ? movie.genres[0].name : 'Action'}</span>
                             </div>
                             <div class="watchlist-meta-item">
@@ -455,13 +423,11 @@ function loadWatchlist() {
     console.log('Watchlist loaded:', watchlist.length, 'movies');
 }
 
-// Search Page Functions
 async function loadSearchPage() {
     loadSearchHistory();
     loadSearchRecommendations();
 }
 
-// Функция загрузки истории поиска
 function loadSearchHistory() {
     const historyItems = document.getElementById('searchHistoryItems');
     const searchHistoryContainer = document.getElementById('searchHistory');
@@ -473,7 +439,6 @@ function loadSearchHistory() {
     
     searchHistoryContainer.style.display = 'block';
     
-    // Показываем последние 6 поисков
     const recentSearches = searchHistory.slice(0, 6);
     historyItems.innerHTML = recentSearches.map(term => `
         <div class="search-history-item" onclick="performSearchFromHistory('${term}')">
@@ -482,7 +447,6 @@ function loadSearchHistory() {
     `).join('');
 }
 
-// Функция загрузки рекомендаций для поиска
 async function loadSearchRecommendations() {
     const grid = document.getElementById('searchRecommendationsGrid');
     
@@ -500,7 +464,6 @@ async function loadSearchRecommendations() {
             return;
         }
         
-        // Показываем 8 популярных фильмов как рекомендации
         grid.innerHTML = data.results.slice(0, 8).map(movie => {
             if (!movie.poster_path) return '';
             return `
@@ -518,38 +481,25 @@ async function loadSearchRecommendations() {
     }
 }
 
-// Функция добавления в историю поиска
 function addToSearchHistory(query) {
-    // Удаляем дубликаты
     searchHistory = searchHistory.filter(term => term.toLowerCase() !== query.toLowerCase());
-    
-    // Добавляем в начало
     searchHistory.unshift(query);
     
-    // Ограничиваем историю 10 элементами
     if (searchHistory.length > 10) {
         searchHistory = searchHistory.slice(0, 10);
     }
-    
-    // Сохраняем в localStorage
-    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
 }
 
-// Функция поиска из истории
 function performSearchFromHistory(query) {
-    // Переключаемся на домашнюю страницу
     document.querySelector('[data-page="home"]').click();
     
-    // Устанавливаем значение поиска
     const searchInput = document.getElementById('searchInput');
     searchInput.value = query;
     searchInput.focus();
     
-    // Выполняем поиск
     searchMovies(query);
 }
 
-// Make functions global for onclick handlers
 window.showDetail = showDetail;
 window.showAbout = showAbout;
 window.showReviews = showReviews;
